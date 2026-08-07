@@ -147,6 +147,8 @@ else:
                                 messages=[{"role": "user", "content": prompt}]
                             )
                             st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
+                    except Exception as e:
+                        st.error(f"API Error: {e}")
                         else:
                             st.warning("Please upload a document first.")
         # TAB 2: Bionic Reader View
