@@ -23,39 +23,40 @@ st.set_page_config(
 
 # Custom High-Contrast & Readable CSS
 # Custom High-Contrast & Readable CSS
-st.markdown("""
+# Custom High-Contrast & Dynamic CSS
+st.markdown(f"""
 <style>
     @import url('https://fonts.cdnfonts.com/css/opendyslexic');
 
-    .stApp {
+    .stApp {{
         background-color: #121212;
         color: #f5e6c8;
         font-family: 'OpenDyslexic', sans-serif !important;
         font-size: 18px;
         line-height: 1.8;
-    }
+    }}
 
-    h1, h2, h3 {
+    h1, h2, h3 {{
         color: #ffd700 !important;
         font-family: 'OpenDyslexic', sans-serif !important;
-    }
+    }}
 
-    /* BIONIC OVERRIDE - Overrides OpenDyslexic for heavy bold weight */
-    .bionic-container {
+    /* DYNAMIC BIONIC OVERRIDE */
+    .bionic-container {{
         font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
-        font-size: 18px !important;
-        line-height: 2.0 !important;
-        color: #888888 !important; /* Muted gray for normal characters */
-    }
+        font-size: {font_size}px !important;
+        line-height: 2.2 !important;
+        color: #888888 !important;
+    }}
 
-    .bionic-container b {
+    .bionic-container b {{
         font-family: system-ui, -apple-system, sans-serif !important;
         font-weight: 900 !important;
-        font-size: 20px !important;
-        color: #ffd700 !important; /* Bright Gold for Bionic prefixes */
-    }
+        font-size: {bold_size}px !important;
+        color: #ffd700 !important;
+    }}
 
-    .reading-box {
+    .reading-box {{
         background-color: #1e1e1e;
         border: 2px solid #ffd700;
         border-radius: 12px;
@@ -64,16 +65,16 @@ st.markdown("""
         margin-bottom: 25px;
         max-height: 500px !important;
         overflow-y: scroll !important;
-    }
+    }}
 
-    .stButton>button {
+    .stButton>button {{
         background-color: #ffd700 !important;
         color: #000000 !important;
         font-weight: bold !important;
         border-radius: 8px !important;
         border: none !important;
         padding: 10px 24px !important;
-    }
+    }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -82,7 +83,13 @@ st.markdown("""
 # ==========================================
 with st.sidebar:
     st.title("⚙️ Controls")
-    uploaded_file = st.file_uploader("📂 Upload Academic PDF", type=["pdf"])
+    uploaded_file = st.file_uploader("📁 Upload Academic PDF", type=["pdf"])
+    
+    # --- ADD THIS SLIDER BLOCK HERE ---
+    font_size = st.slider("Font Size (px)", min_value=16, max_value=32, value=22, step=2)
+    bold_size = font_size + 2
+    # ----------------------------------
+    
     st.divider()
     st.info("💡 **Tip:** Use the Bionic Reader tab to bold key word anchors and improve reading speed.")
 
