@@ -179,7 +179,7 @@ else:
                         f"Context: {extracted_text[:4000]}\n\n"
                         f"User Question: {user_query}"
                     )
-                    response = client.chat.completion.create(
+                    response = client.chat.completions.create(
                         model='gemini-1.5-flash',
                         contents=prompt
                     )
