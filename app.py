@@ -134,19 +134,21 @@ else:
             if st.button("Generate AI Summary"):
                 with st.spinner("Analyzing document with Gemini..."):
                     try:
-                        prompt = (
-                            "Summarize the following academic text for a student with ADHD or learning differences. "
-                            "Use short bullet points, bold key terms, simple everyday words, and an 'Explain Like I'm 10' tone:\n\n"
-                            f"{extracted_text[:4000]}"
-                        )
-                        response = client.chat.completions.create(
-                            model="gemini-1.5-flash",
-                            messages=[{"role": "user", "content": prompt}]
-                        )
-                        st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"API Error: {e}")
-
+                        # Check if document text exists before building the prompt
+                        if extracted_text and extracted_text.strip():
+                            prompt = (
+                                "Summarize the following academic text for a student with ADHD or learning differences. "
+                                "Use short bullet points, bold key terms, simple everyday words, and an 'Explain Like I'm 10' tone:\n\n"
+                                f"{extracted_text[:4000]}"
+                            )
+                            
+                            response = client.chat.completions.create(
+                                model="gemini-1.5-flash",  # Standard ASCII hyphen (-)
+                                messages=[{"role": "user", "content": prompt}]
+                            )
+                            st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
+                        else:
+                            st.warning("Please upload a document first.")
         # TAB 2: Bionic Reader View
         with tab_bionic:
             st.subheader("Bionic Focused View")
@@ -170,19 +172,25 @@ else:
         with tab_chat:
             st.subheader("Interactive Document Q&A")
             user_query = st.text_input("Ask any question about this document:")
-            if user_query:
-               with st.spinner("Gemini is searching the document..."):
-                try:
-                    prompt = (
-                        "You are a helpful study assistant. Answer the user's question accurately based ONLY on this text. "
-                        "Keep your response concise and easy to read.\n\n"
-                        f"Context: {extracted_text[:4000]}\n\n"
-                        f"User Question: {user_query}"
-                    )
-                    response = client.chat.completions.create(
-                        model='gemini-1.5-flash',
-                        contents=prompt
-                    )
-                    st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
-                except Exception as e:
-                    st.error(f"API Error: {e}")
+            
+            if user_query and user_query.strip():
+                if extracted_text and extracted_text.strip():
+                    with st.spinner("Gemini is searching the document..."):
+                        try:
+                            prompt = (
+                                "You are a helpful study assistant. Answer the user's question accurately based ONLY on this text. "
+                                "Keep your response concise and easy to read.\n\n"
+                                f"Context: {extracted_text[:4000]}\n\n"
+                                f"User Question: {user_query}"
+                            )
+                            
+                            response = client.chat.completions.create(
+                                model="gemini-1.5-flash",
+                                messages=[{"role": "user", "content": prompt}]
+                            )
+                            
+                            st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
+                        except Exception as e:
+                            st.error(f"API Error: {e}")
+                else:
+                    st.warning("Please upload a PDF document before asking a question.")
