@@ -47,7 +47,7 @@ st.markdown("""
     margin-top: 15px;
     margin-bottom: 25px;
     max-height: 500px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
     .stButton>button {
         background-color: #ffd700 !important;
