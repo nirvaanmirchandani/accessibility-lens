@@ -22,7 +22,7 @@ st.set_page_config(
 )
 with st.sidebar:
     st.title("⚙️ Controls")
-    uploaded_file = st.file_uploader("📁 Upload Academic PDF", type=["pdf"])
+    uploaded_file = st.file_uploader("📁 Upload PDF", type=["pdf"])
     
     # Dynamic text scaling controls
     font_size = st.slider("Font Size ", min_value=16, max_value=32, value=22, step=2)
