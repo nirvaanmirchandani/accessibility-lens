@@ -73,7 +73,7 @@ st.markdown(f"""
         margin-top: 15px;
         margin-bottom: 25px;
         max-height: 500px !important;
-        overflow-y: scroll !important;
+        overflow-y: auto !important;
     }}
 
     .stButton>button {{
