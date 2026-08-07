@@ -130,7 +130,7 @@ else:
                             f"{extracted_text[:4000]}"
                         )
                         response = client.models.generate_content(
-                            model='gemini-2.5-flash',
+                            model='gemini-1.5-flash',
                             contents=prompt
                         )
                         st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
@@ -170,7 +170,7 @@ else:
                             f"User Question: {user_query}"
                         )
                         response = client.models.generate_content(
-                            model='gemini-2.5-flash',
+                            model='gemini-1.5-flash',
                             contents=prompt
                         )
                         st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
