@@ -168,18 +168,18 @@ else:
             st.subheader("Interactive Document Q&A")
             user_query = st.text_input("Ask any question about this document:")
             if user_query:
-                with st.spinner("Gemini is searching the document..."):
-                    try:
-                        prompt = (
-                            "You are a helpful study assistant. Answer the user's question accurately based ONLY on this text. "
-                            "Keep your response concise and easy to read.\n\n"
-                            f"Context: {extracted_text[:4000]}\n\n"
-                            f"User Question: {user_query}"
-                        )
-                       response = client.models.generate_content
-                            model='gemini-1.5-flash',
-                            contents=prompt
-                        )
-                        st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"API Error: {e}")
+               with st.spinner("Gemini is searching the document..."):
+                try:
+                    prompt = (
+                        "You are a helpful study assistant. Answer the user's question accurately based ONLY on this text. "
+                        "Keep your response concise and easy to read.\n\n"
+                        f"Context: {extracted_text[:4000]}\n\n"
+                        f"User Question: {user_query}"
+                    )
+                    response = client.models.generate_content(
+                        model='gemini-1.5-flash',
+                        contents=prompt
+                    )
+                    st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
+                except Exception as e:
+                    st.error(f"API Error: {e}")
