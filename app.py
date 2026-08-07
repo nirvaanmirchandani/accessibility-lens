@@ -199,7 +199,7 @@ else:
         with tab_bionic:
             st.subheader("Bionic Focused View")
             bionic_html = convert_to_bionic(extracted_text)
-            st.markdown(f'<div class="reading-box">{bionic_html}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="reading-box"><div class="bionic-container">{bionic_html}</div></div>', unsafe_allow_html=True)
 
         # TAB 3: Audio Assistant
         with tab_audio:
