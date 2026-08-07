@@ -20,7 +20,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
+with st.sidebar:
+    st.title("⚙️ Controls")
+    uploaded_file = st.file_uploader("📁 Upload Academic PDF", type=["pdf"])
+    
+    # Dynamic text scaling controls
+    font_size = st.slider("Font Size (px)", min_value=16, max_value=32, value=22, step=2)
+    bold_size = font_size + 2
+    
+    st.divider()
+    st.info("💡 **Tip:** Use the Bionic Reader tab to bold key word anchors and improve reading speed.")
 # Custom High-Contrast & Readable CSS
 # Custom High-Contrast & Readable CSS
 # Custom High-Contrast & Dynamic CSS
@@ -81,17 +90,6 @@ st.markdown(f"""
 # ==========================================
 # 2. SIDEBAR CONTROLS
 # ==========================================
-with st.sidebar:
-    st.title("⚙️ Controls")
-    uploaded_file = st.file_uploader("📁 Upload Academic PDF", type=["pdf"])
-    
-    # --- ADD THIS SLIDER BLOCK HERE ---
-    font_size = st.slider("Font Size (px)", min_value=16, max_value=32, value=22, step=2)
-    bold_size = font_size + 2
-    # ----------------------------------
-    
-    st.divider()
-    st.info("💡 **Tip:** Use the Bionic Reader tab to bold key word anchors and improve reading speed.")
 
 # Retrieve Gemini API Key securely from Secrets
 api_key = st.secrets.get("GEMINI_API_KEY")
