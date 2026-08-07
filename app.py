@@ -40,14 +40,15 @@ st.markdown("""
     }
 
     .reading-box {
-        background-color: #1e1e1e;
-        border: 2px solid #ffd700;
-        border-radius: 12px;
-        padding: 24px;
-        margin-top: 15px;
-        margin-bottom: 25px;
-    }
-
+    background-color: #1e1e1e;
+    border: 2px solid #ffd700;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    max-height: 500px;
+    overflow-y: auto;
+}
     .stButton>button {
         background-color: #ffd700 !important;
         color: #000000 !important;
@@ -149,7 +150,7 @@ else:
         # TAB 2: Bionic Reader View
         with tab_bionic:
             st.subheader("Bionic Focused View")
-            bionic_html = convert_to_bionic(extracted_text[:2000])
+            bionic_html = convert_to_bionic(extracted_text)
             st.markdown(f'<div class="reading-box">{bionic_html}</div>', unsafe_allow_html=True)
 
         # TAB 3: Audio Assistant
