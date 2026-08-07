@@ -26,7 +26,7 @@ with st.sidebar:
     
     # Dynamic text scaling controls
     font_size = st.slider("Font Size ", min_value=16, max_value=32, value=22, step=2)
-    bold_size = font_size + 2
+    bold_size = font_size + 1
     
     st.divider()
     st.info("💡 **Tip:** Use the Bionic Reader tab to bold key word anchors and improve reading speed.")
