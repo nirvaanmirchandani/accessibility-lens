@@ -133,8 +133,7 @@ else:
             st.subheader("Simplified Executive Summary")
             if st.button("Generate AI Summary"):
                 with st.spinner("Analyzing document with Gemini..."):
-                    try:
-                        # Check if document text exists before building the prompt
+                   try:
                         if extracted_text and extracted_text.strip():
                             prompt = (
                                 "Summarize the following academic text for a student with ADHD or learning differences. "
@@ -143,14 +142,14 @@ else:
                             )
                             
                             response = client.chat.completions.create(
-                                model="gemini-1.5-flash",  # Standard ASCII hyphen (-)
+                                model="gemini-1.5-flash",
                                 messages=[{"role": "user", "content": prompt}]
                             )
                             st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
-                    except Exception as e:
-                        st.error(f"API Error: {e}")
                         else:
                             st.warning("Please upload a document first.")
+                    except Exception as e:
+                        st.error(f"API Error: {e}")
         # TAB 2: Bionic Reader View
         with tab_bionic:
             st.subheader("Bionic Focused View")
