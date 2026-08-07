@@ -1,9 +1,16 @@
 import streamlit as st
 from pypdf import PdfReader
-from google import genai
+from openai import OpenAI
 from gtts import gTTS
 import io
+api_key = st.secrets.get("GEMINI_API_KEY")
+client = None
 
+if api_key:
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
 # ==========================================
 # 1. PAGE & ACCESSIBILITY STYLING
 # ==========================================
@@ -129,11 +136,11 @@ else:
                             "Use short bullet points, bold key terms, simple everyday words, and an 'Explain Like I'm 10' tone:\n\n"
                             f"{extracted_text[:4000]}"
                         )
-                        response = client.models.generate_content(
-                            model='gemini-2.0-flash',
-                            contents=prompt
+                        response = client.chat.completions.create(
+                            model="gemini-1.5-flash",
+                            messages=[{"role": "user", "content": prompt}]
                         )
-                        st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
+                        st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
                     except Exception as e:
                         st.error(f"API Error: {e}")
 
@@ -169,11 +176,10 @@ else:
                             f"Context: {extracted_text[:4000]}\n\n"
                             f"User Question: {user_query}"
                         )
-                        response = client.models.generate_content(
-                            model='gemini-2.0-flash',
+                       response = client.models.generate_content(
+                            model='gemini-1.5-flash',
                             contents=prompt
                         )
                         st.markdown(f'<div class="reading-box">{response.text}</div>', unsafe_allow_html=True)
                     except Exception as e:
                         st.error(f"API Error: {e}")
-
