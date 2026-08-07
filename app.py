@@ -130,26 +130,26 @@ else:
 
         # TAB 1: ELI10 Summary
         with tab_summary:
-            st.subheader("Simplified Executive Summary")
-            if st.button("Generate AI Summary"):
-                with st.spinner("Analyzing document with Gemini..."):
-                   try:
-                        if extracted_text and extracted_text.strip():
-                            prompt = (
-                                "Summarize the following academic text for a student with ADHD or learning differences. "
-                                "Use short bullet points, bold key terms, simple everyday words, and an 'Explain Like I'm 10' tone:\n\n"
-                                f"{extracted_text[:4000]}"
-                            )
-                            
-                            response = client.chat.completions.create(
-                                model="gemini-1.5-flash",
-                                messages=[{"role": "user", "content": prompt}]
-                            )
-                            st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
-                        else:
-                            st.warning("Please upload a document first.")
-                    except Exception as e:
-                        st.error(f"API Error: {e}")
+    st.subheader("Simplified Executive Summary")
+    if st.button("Generate AI Summary"):
+        with st.spinner("Analyzing document with Gemini..."):
+            try:
+                if extracted_text and extracted_text.strip():
+                    prompt = (
+                        "Summarize the following academic text for a student with ADHD or learning differences. "
+                        "Use short bullet points, bold key terms, simple everyday words, and an 'Explain Like I'm 10' tone:\n\n"
+                        f"{extracted_text[:4000]}"
+                    )
+                    
+                    response = client.chat.completions.create(
+                        model="gemini-1.5-flash",
+                        messages=[{"role": "user", "content": prompt}]
+                    )
+                    st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
+                else:
+                    st.warning("Please upload a document first.")
+            except Exception as e:
+                st.error(f"API Error: {e}")
         # TAB 2: Bionic Reader View
         with tab_bionic:
             st.subheader("Bionic Focused View")
