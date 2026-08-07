@@ -74,9 +74,9 @@ api_key = st.secrets.get("GEMINI_API_KEY")
 # Initialize Gemini Client if API key exists
 client = None
 if api_key:
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=api_key,
     base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
- )
+  )
 
 # Helper Function: Bionic Reading
 def convert_to_bionic(text):
