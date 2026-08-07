@@ -74,7 +74,9 @@ api_key = st.secrets.get("GEMINI_API_KEY")
 # Initialize Gemini Client if API key exists
 client = None
 if api_key:
-    client = genai.Client(api_key=api_key)
+    client = OpenAI.Client(api_key=api_key)
+    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
 
 # Helper Function: Bionic Reading
 def convert_to_bionic(text):
@@ -176,7 +178,7 @@ else:
                         f"Context: {extracted_text[:4000]}\n\n"
                         f"User Question: {user_query}"
                     )
-                    response = client.models.generate_content(
+                    response = client.chat.completion.create(
                         model='gemini-1.5-flash',
                         contents=prompt
                     )
