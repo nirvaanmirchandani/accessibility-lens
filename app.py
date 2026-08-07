@@ -80,14 +80,37 @@ if api_key:
   )
 
 # Helper Function: Bionic Reading
+# Helper Function: Bionic Reading
 def convert_to_bionic(text):
-    words = text.split()
-    bionic_words = []
-    for word in words:
-        mid = max(1, len(word) // 2)
-        bionic_word = f"<b>{word[:mid]}</b>{word[mid:]}"
-        bionic_words.append(bionic_word)
-    return " ".join(bionic_words)
+    import re
+    
+    # Preserve paragraph and line breaks
+    lines = text.split('\n')
+    bionic_lines = []
+    
+    for line in lines:
+        words = line.split(' ')
+        bionic_words = []
+        
+        for word in words:
+            if not word:
+                continue
+            
+            # Handle word vs punctuation separately so tags don't break
+            match = re.match(r'^(\W*)([\w]+)(\W*)$', word, re.UNICODE)
+            if match:
+                prefix_punct, core_word, suffix_punct = match.groups()
+                mid = max(1, len(core_word) // 2)
+                bionic_word = f"{prefix_punct}<b>{core_word[:mid]}</b>{core_word[mid:]}{suffix_punct}"
+            else:
+                mid = max(1, len(word) // 2)
+                bionic_word = f"<b>{word[:mid]}</b>{word[mid:]}"
+                
+            bionic_words.append(bionic_word)
+            
+        bionic_lines.append(" ".join(bionic_words))
+        
+    return "<br>".join(bionic_lines)
 
 # ==========================================
 # 3. MAIN APPLICATION INTERFACE
