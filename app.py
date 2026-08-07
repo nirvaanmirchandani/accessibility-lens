@@ -22,6 +22,7 @@ st.set_page_config(
 )
 
 # Custom High-Contrast & Readable CSS
+# Custom High-Contrast & Readable CSS
 st.markdown("""
 <style>
     @import url('https://fonts.cdnfonts.com/css/opendyslexic');
@@ -39,16 +40,32 @@ st.markdown("""
         font-family: 'OpenDyslexic', sans-serif !important;
     }
 
+    /* BIONIC OVERRIDE - Overrides OpenDyslexic for heavy bold weight */
+    .bionic-container {
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+        font-size: 18px !important;
+        line-height: 2.0 !important;
+        color: #888888 !important; /* Muted gray for normal characters */
+    }
+
+    .bionic-container b {
+        font-family: system-ui, -apple-system, sans-serif !important;
+        font-weight: 900 !important;
+        font-size: 20px !important;
+        color: #ffd700 !important; /* Bright Gold for Bionic prefixes */
+    }
+
     .reading-box {
-    background-color: #1e1e1e;
-    border: 2px solid #ffd700;
-    border-radius: 12px;
-    padding: 24px;
-    margin-top: 15px;
-    margin-bottom: 25px;
-    max-height: 500px !important;
-    overflow-y: scroll !important;
-}
+        background-color: #1e1e1e;
+        border: 2px solid #ffd700;
+        border-radius: 12px;
+        padding: 24px;
+        margin-top: 15px;
+        margin-bottom: 25px;
+        max-height: 500px !important;
+        overflow-y: scroll !important;
+    }
+
     .stButton>button {
         background-color: #ffd700 !important;
         color: #000000 !important;
