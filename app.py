@@ -25,7 +25,7 @@ with st.sidebar:
     uploaded_file = st.file_uploader("📁 Upload Academic PDF", type=["pdf"])
     
     # Dynamic text scaling controls
-    font_size = st.slider("Font Size (px)", min_value=16, max_value=32, value=22, step=2)
+    font_size = st.slider("Font Size ", min_value=16, max_value=32, value=22, step=2)
     bold_size = font_size + 2
     
     st.divider()
