@@ -106,6 +106,11 @@ if api_key:
 
 # Helper Function: Bionic Reading
 # Helper Function: Bionic Reading
+
+
+# ==========================================
+# BIONIC READING
+# ==========================================
 def convert_to_bionic(text):
     import re
     
@@ -136,6 +141,47 @@ def convert_to_bionic(text):
         bionic_lines.append(" ".join(bionic_words))
         
     return "<br>".join(bionic_lines)
+
+ # ==========================================
+ # PDF SEARCH
+ # ==========================================
+
+    def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
+    import re
+
+    words = text.split()
+    chunks = []
+
+    for i in range(0, len(words), chunk_size):
+        chunk = " ".join(words[i:i + chunk_size])
+        chunks.append(chunk)
+
+    query_words = set(
+        word.lower()
+        for word in re.findall(r"\b[a-zA-Z0-9]+\b", query)
+        if len(word) > 2
+    )
+
+    scored_chunks = []
+
+    for chunk in chunks:
+        chunk_words = set(
+            word.lower()
+            for word in re.findall(r"\b[a-zA-Z0-9]+\b", chunk)
+        )
+
+        score = len(query_words.intersection(chunk_words))
+
+        scored_chunks.append((score, chunk))
+
+    scored_chunks.sort(
+        reverse=True,
+        key=lambda x: x[0]
+    )
+
+    return "\n\n".join(
+        chunk for score, chunk in scored_chunks[:top_k]
+    )
 
 # ==========================================
 # 3. MAIN APPLICATION INTERFACE
@@ -226,11 +272,19 @@ else:
                 if extracted_text and extracted_text.strip():
                     with st.spinner("Gemini is searching the document..."):
                         try:
+                            relevant_text = find_relevant_chunks(
+                                extracted_text,
+                                user_query
+                            )
+                            
                             prompt = (
-                                "You are a helpful study assistant. Answer the user's question accurately based ONLY on this text. "
+                                "You are a helpful study assistant. "
+                                "Answer the user's question using ONLY the provided document context. "
+                                "If the answer cannot be found in the context, say that the information "
+                                "is not available in the provided document. "
                                 "Keep your response concise and easy to read.\n\n"
-                                f"Context: {extracted_text[:4000]}\n\n"
-                                f"User Question: {user_query}"
+                                f"DOCUMENT CONTEXT:\n{relevant_text}\n\n"
+                                f"USER QUESTION:\n{user_query}"
                             )
                             
                             response = client.chat.completions.create(
