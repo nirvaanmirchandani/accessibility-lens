@@ -99,56 +99,72 @@ api_key = st.secrets.get("GEMINI_API_KEY")
 
 # Initialize Gemini Client if API key exists
 client = None
-if api_key:
-    client = OpenAI(api_key=api_key,
-    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
-  )
 
-# Helper Function: Bionic Reading
-# Helper Function: Bionic Reading
+if api_key:
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+    )
 
 
 # ==========================================
 # BIONIC READING
 # ==========================================
+
 def convert_to_bionic(text):
     import re
-    
+
     # Preserve paragraph and line breaks
     lines = text.split('\n')
     bionic_lines = []
-    
+
     for line in lines:
         words = line.split(' ')
         bionic_words = []
-        
+
         for word in words:
             if not word:
                 continue
-            
-            # Handle word vs punctuation separately so tags don't break
-            match = re.match(r'^(\W*)([\w]+)(\W*)$', word, re.UNICODE)
+
+            # Handle word vs punctuation separately
+            match = re.match(
+                r'^(\W*)([\w]+)(\W*)$',
+                word,
+                re.UNICODE
+            )
+
             if match:
                 prefix_punct, core_word, suffix_punct = match.groups()
                 mid = max(1, len(core_word) // 2)
-                bionic_word = f"{prefix_punct}<b>{core_word[:mid]}</b>{core_word[mid:]}{suffix_punct}"
+
+                bionic_word = (
+                    f"{prefix_punct}"
+                    f"<b>{core_word[:mid]}</b>"
+                    f"{core_word[mid:]}"
+                    f"{suffix_punct}"
+                )
+
             else:
                 mid = max(1, len(word) // 2)
-                bionic_word = f"<b>{word[:mid]}</b>{word[mid:]}"
-                
+                bionic_word = (
+                    f"<b>{word[:mid]}</b>{word[mid:]}"
+                )
+
             bionic_words.append(bionic_word)
-            
+
         bionic_lines.append(" ".join(bionic_words))
-        
+
     return "<br>".join(bionic_lines)
 
- # ==========================================
- # PDF SEARCH
- # ==========================================
 
-    def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
+# ==========================================
+# PDF SEARCH
+# ==========================================
+
+def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
     import re
 
+    # Split document into chunks
     words = text.split()
     chunks = []
 
@@ -156,6 +172,7 @@ def convert_to_bionic(text):
         chunk = " ".join(words[i:i + chunk_size])
         chunks.append(chunk)
 
+    # Extract important words from the question
     query_words = set(
         word.lower()
         for word in re.findall(r"\b[a-zA-Z0-9]+\b", query)
@@ -164,24 +181,33 @@ def convert_to_bionic(text):
 
     scored_chunks = []
 
+    # Score each chunk based on matching words
     for chunk in chunks:
         chunk_words = set(
             word.lower()
-            for word in re.findall(r"\b[a-zA-Z0-9]+\b", chunk)
+            for word in re.findall(
+                r"\b[a-zA-Z0-9]+\b",
+                chunk
+            )
         )
 
         score = len(query_words.intersection(chunk_words))
 
         scored_chunks.append((score, chunk))
 
+    # Highest-scoring chunks first
     scored_chunks.sort(
         reverse=True,
         key=lambda x: x[0]
     )
 
+    # Return the most relevant chunks
     return "\n\n".join(
-        chunk for score, chunk in scored_chunks[:top_k]
+        chunk
+        for score, chunk in scored_chunks[:top_k]
     )
+
+
 
 # ==========================================
 # 3. MAIN APPLICATION INTERFACE
