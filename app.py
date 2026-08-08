@@ -11,6 +11,17 @@ if api_key:
         api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
+    if client:
+    try:
+        models = client.models.list()
+
+        st.sidebar.write("### Available Gemini Models")
+
+        for model in models:
+            st.sidebar.code(model.id)
+
+    except Exception as e:
+        st.sidebar.error(f"Model list error: {e}")
 # ==========================================
 # 1. PAGE & ACCESSIBILITY STYLING
 # ==========================================
