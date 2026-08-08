@@ -187,7 +187,7 @@ else:
                             )
                             
                             response = client.chat.completions.create(
-                                model="gemini-2.0-flash",
+                                model="gemini-1.5-flash",
                                 messages=[{"role": "user", "content": prompt}]
                             )
                             st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
@@ -231,7 +231,7 @@ else:
                             )
                             
                             response = client.chat.completions.create(
-                                model="gemini-2.0-flash",
+                                model="gemini-1.5-flash",
                                 messages=[{"role": "user", "content": prompt}]
                             )
                             
