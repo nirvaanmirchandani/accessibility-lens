@@ -14,7 +14,7 @@ if api_key:
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
     
-    @st.cache_resource
+@st.cache_resource
 def load_embedding_model():
     return SentenceTransformer("all-MiniLM-L6-v2")
 
