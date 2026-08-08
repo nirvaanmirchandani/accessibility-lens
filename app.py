@@ -3,6 +3,7 @@ from pypdf import PdfReader
 from openai import OpenAI
 from gtts import gTTS
 import io
+from sentence_transformers import SentenceTransformer
 
 api_key = st.secrets.get("GEMINI_API_KEY")
 client = None
@@ -12,6 +13,13 @@ if api_key:
         api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
+    
+    @st.cache_resource
+def load_embedding_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
+
+embedding_model = load_embedding_model()
+    
 
     
 # ==========================================
@@ -161,52 +169,55 @@ def convert_to_bionic(text):
 # PDF SEARCH
 # ==========================================
 
-def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
-    import re
-
-    # Split document into chunks
+def create_chunks(text, chunk_size=500):
     words = text.split()
     chunks = []
 
     for i in range(0, len(words), chunk_size):
-        chunk = " ".join(words[i:i + chunk_size])
-        chunks.append(chunk)
-
-    # Extract important words from the question
-    query_words = set(
-        word.lower()
-        for word in re.findall(r"\b[a-zA-Z0-9]+\b", query)
-        if len(word) > 2
-    )
-
-    scored_chunks = []
-
-    # Score each chunk based on matching words
-    for chunk in chunks:
-        chunk_words = set(
-            word.lower()
-            for word in re.findall(
-                r"\b[a-zA-Z0-9]+\b",
-                chunk
-            )
+        chunks.append(
+            " ".join(words[i:i + chunk_size])
         )
 
-        score = len(query_words.intersection(chunk_words))
+    return chunks
 
-        scored_chunks.append((score, chunk))
 
-    # Highest-scoring chunks first
-    scored_chunks.sort(
-        reverse=True,
-        key=lambda x: x[0]
+def find_relevant_chunks(text, query, top_k=3):
+    from sentence_transformers.util import cos_sim
+
+    chunks = create_chunks(text)
+
+    if not chunks:
+        return ""
+
+    # Create embeddings for document chunks
+    chunk_embeddings = embedding_model.encode(
+        chunks,
+        convert_to_tensor=True
     )
 
-    # Return the most relevant chunks
-    return "\n\n".join(
-        chunk
-        for score, chunk in scored_chunks[:top_k]
+    # Create embedding for the user's question
+    query_embedding = embedding_model.encode(
+        query,
+        convert_to_tensor=True
     )
 
+    # Compare question with document chunks
+    similarities = cos_sim(
+        query_embedding,
+        chunk_embeddings
+    )[0]
+
+    # Select the most relevant chunks
+    top_results = similarities.topk(
+        min(top_k, len(chunks))
+    ).indices
+
+    relevant_chunks = [
+        chunks[int(i)]
+        for i in top_results
+    ]
+
+    return "\n\n".join(relevant_chunks)
 
 
 # ==========================================
