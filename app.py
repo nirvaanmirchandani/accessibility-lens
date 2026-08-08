@@ -3,6 +3,7 @@ from pypdf import PdfReader
 from openai import OpenAI
 from gtts import gTTS
 import io
+
 api_key = st.secrets.get("GEMINI_API_KEY")
 client = None
 
@@ -11,7 +12,8 @@ if api_key:
         api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
-    if client:
+
+    # Temporarily list the models available to your API key
     try:
         models = client.models.list()
 
