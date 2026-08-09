@@ -381,7 +381,7 @@ else:
                             )
             
                             response = client.chat.completions.create(
-                                model="gemini-3.1-flash",
+                                model="gemini-3.1-flash-lite",
                                 messages=[
                                     {"role": "user", "content": prompt}
                                 ]
@@ -411,4 +411,4 @@ else:
             
                         except Exception as e:
                             st.error(f"API Error: {e}")
-                            st.error(f"API Error: {e}")
+                         
