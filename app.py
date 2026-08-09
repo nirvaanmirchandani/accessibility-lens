@@ -165,40 +165,49 @@ def convert_to_bionic(text):
 # PDF SEARCH
 # ==========================================
 
-def create_chunks(text):
+def create_chunks(pages):
     import re
-
-    # Clean up excessive whitespace
-    text = re.sub(r'\n+', '\n', text)
-    text = re.sub(r'[ \t]+', ' ', text)
-
-    # Try to split around question/section headings
-    sections = re.split(
-        r'(?=\n?\s*(?:\d+\.\s+|Q(?:uestion)?\.?\s*\d*[:.]?))',
-        text,
-        flags=re.IGNORECASE
-    )
 
     chunks = []
 
-    for section in sections:
-        section = section.strip()
+    for page_data in pages:
+        page_number = page_data["page"]
+        text = page_data["text"]
 
-        if not section:
-            continue
+        # Clean whitespace
+        text = re.sub(r'\n+', '\n', text)
+        text = re.sub(r'[ \t]+', ' ', text)
 
-        # If a section is still very large, split it into smaller pieces
-        words = section.split()
+        # Split around questions/sections
+        sections = re.split(
+            r'(?=\n?\s*(?:\d+\.\s+|Q(?:uestion)?\.?\s*\d*[:.]?))',
+            text,
+            flags=re.IGNORECASE
+        )
 
-        if len(words) <= 450:
-            chunks.append(section)
-        else:
-            for i in range(0, len(words), 350):
-                chunk = " ".join(words[i:i + 350])
-                chunks.append(chunk)
+        for section in sections:
+            section = section.strip()
+
+            if not section:
+                continue
+
+            words = section.split()
+
+            if len(words) <= 450:
+                chunks.append({
+                    "text": section,
+                    "page": page_number
+                })
+            else:
+                for i in range(0, len(words), 350):
+                    chunk = " ".join(words[i:i + 350])
+
+                    chunks.append({
+                        "text": chunk,
+                        "page": page_number
+                    })
 
     return chunks
-
 def get_embedding(text):
     response = client.embeddings.create(
         model="gemini-embedding-2",
@@ -209,10 +218,10 @@ def get_embedding(text):
 
 
 def find_relevant_chunks(text, query, top_k=2):
-    chunks = create_chunks(text)
+    chunks = create_chunks(pages)
 
     if not chunks:
-        return ""
+        return []
 
     # Embed the user's question
     query_embedding = get_embedding(query)
@@ -221,7 +230,7 @@ def find_relevant_chunks(text, query, top_k=2):
 
     # Embed each document chunk
     for chunk in chunks:
-        chunk_embedding = get_embedding(chunk)
+        chunk_embedding = get_embedding(chunk["text"])
 
         # Calculate cosine similarity
         similarity = np.dot(
@@ -234,18 +243,17 @@ def find_relevant_chunks(text, query, top_k=2):
 
         scored_chunks.append((similarity, chunk))
 
-    # Highest similarity first
+    # Sort from most relevant to least relevant
     scored_chunks.sort(
-        reverse=True,
-        key=lambda x: x[0]
+        key=lambda x: x[0],
+        reverse=True
     )
 
-    # Return the most relevant chunks
-    return "\n\n".join(
+    # Return the best chunks
+    return [
         chunk
-        for score, chunk in scored_chunks[:top_k]
-    )
-
+        for similarity, chunk in scored_chunks[:top_k]
+    ]
 # ==========================================
 # 3. MAIN APPLICATION INTERFACE
 # ==========================================
@@ -267,9 +275,19 @@ else:
     # Extract PDF Text
     try:
         reader = PdfReader(uploaded_file)
-        extracted_text = ""
-        for page in reader.pages:
-            extracted_text += page.extract_text() or ""
+
+        pages = []
+        
+        for page_number, page in enumerate(reader.pages, start=1):
+            page_text = page.extract_text() or ""
+        
+            if page_text.strip():
+                pages.append({
+                    "page": page_number,
+                    "text": page_text
+                })
+
+
         
         st.success(f"Successfully processed {len(reader.pages)} pages!")
     except Exception as e:
