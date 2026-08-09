@@ -2,4 +2,4 @@ streamlit
 openai
 pypdf
 gTTS
-sentence-transformers
+
