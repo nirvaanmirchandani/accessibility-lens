@@ -165,16 +165,39 @@ def convert_to_bionic(text):
 # PDF SEARCH
 # ==========================================
 
-def create_chunks(text, chunk_size=500):
-    words = text.split()
+def create_chunks(text):
+    import re
+
+    # Clean up excessive whitespace
+    text = re.sub(r'\n+', '\n', text)
+    text = re.sub(r'[ \t]+', ' ', text)
+
+    # Try to split around question/section headings
+    sections = re.split(
+        r'(?=\n?\s*(?:\d+\.\s+|Q(?:uestion)?\.?\s*\d*[:.]?))',
+        text,
+        flags=re.IGNORECASE
+    )
+
     chunks = []
 
-    for i in range(0, len(words), chunk_size):
-        chunk = " ".join(words[i:i + chunk_size])
-        chunks.append(chunk)
+    for section in sections:
+        section = section.strip()
+
+        if not section:
+            continue
+
+        # If a section is still very large, split it into smaller pieces
+        words = section.split()
+
+        if len(words) <= 450:
+            chunks.append(section)
+        else:
+            for i in range(0, len(words), 350):
+                chunk = " ".join(words[i:i + 350])
+                chunks.append(chunk)
 
     return chunks
-
 
 def get_embedding(text):
     response = client.embeddings.create(
@@ -185,7 +208,7 @@ def get_embedding(text):
     return np.array(response.data[0].embedding)
 
 
-def find_relevant_chunks(text, query, top_k=3):
+def find_relevant_chunks(text, query, top_k=2):
     chunks = create_chunks(text)
 
     if not chunks:
