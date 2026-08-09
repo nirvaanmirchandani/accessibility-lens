@@ -317,6 +317,9 @@ else:
                                 user_query
                             )
                             
+                            st.write("### 🔎 Retrieved Context")
+                            st.write(relevant_text)
+                            
                             prompt = (
                                 "You are a helpful study assistant. "
                                 "Answer the user's question using ONLY the provided document context. "
