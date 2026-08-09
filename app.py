@@ -359,31 +359,56 @@ else:
                 if extracted_text and extracted_text.strip():
                     with st.spinner("Gemini is searching the document..."):
                         try:
-                            relevant_text = find_relevant_chunks(
+            
+                            relevant_chunks = find_relevant_chunks(
                                 extracted_text,
-                                user_query
+                                user_query,
+                                top_k=2
                             )
-                            
-                            st.write("### 🔎 Retrieved Context")
-                            st.write(relevant_text)
-                            
+            
+                            relevant_text = "\n\n".join(
+                                f"[Page {chunk['page']}]\n{chunk['text']}"
+                                for chunk in relevant_chunks
+                            )
+            
                             prompt = (
                                 "You are a helpful study assistant. "
-                                "Answer the user's question using ONLY the provided document context. "
-                                "If the answer cannot be found in the context, say that the information "
-                                "is not available in the provided document. "
-                                "Keep your response concise and easy to read.\n\n"
+                                "Answer the user's question accurately based ONLY "
+                                "on the provided document context. "
+                                "If the answer is not in the context, say so.\n\n"
                                 f"DOCUMENT CONTEXT:\n{relevant_text}\n\n"
                                 f"USER QUESTION:\n{user_query}"
                             )
-                            
+            
                             response = client.chat.completions.create(
-                                model="gemini-3.1-flash-lite",
-                                messages=[{"role": "user", "content": prompt}]
+                                model="gemini-3.1-flash",
+                                messages=[
+                                    {"role": "user", "content": prompt}
+                                ]
                             )
-                            
-                            st.markdown(f'<div class="reading-box">{response.choices[0].message.content}</div>', unsafe_allow_html=True)
+            
+                            # AI answer
+                            st.markdown(
+                                f'<div class="reading-box">'
+                                f'{response.choices[0].message.content}'
+                                f'</div>',
+                                unsafe_allow_html=True
+                            )
+            
+                            # Source pages
+                            pages_used = sorted(set(
+                                chunk["page"]
+                                for chunk in relevant_chunks
+                            ))
+            
+                            st.caption(
+                                "📄 Source: " +
+                                ", ".join(
+                                    f"Page {page}"
+                                    for page in pages_used
+                                )
+                            )
+            
                         except Exception as e:
                             st.error(f"API Error: {e}")
-                else:
-                    st.warning("Please upload a PDF document before asking a question.")
+                            st.error(f"API Error: {e}")
