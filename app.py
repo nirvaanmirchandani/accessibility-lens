@@ -274,32 +274,33 @@ elif not uploaded_file:
 else:
     # Extract PDF Text
     # Extract PDF Text
-try:
-    reader = PdfReader(uploaded_file)
-
-    pages = []
-
-    for page_number, page in enumerate(reader.pages, start=1):
-        page_text = page.extract_text() or ""
-
-        if page_text.strip():
-            pages.append({
-                "page": page_number,
-                "text": page_text
-            })
-
-    # Combine page text for the rest of the app
-    extracted_text = "\n\n".join(
-        page["text"] for page in pages
-    )
-
-    st.success(f"Successfully processed {len(reader.pages)} pages!")
-
-except Exception as e:
-    st.error(f"Error reading PDF: {e}")
-    extracted_text = ""
-
-if extracted_text:
+         
+    try:
+        reader = PdfReader(uploaded_file)
+    
+        pages = []
+    
+        for page_number, page in enumerate(reader.pages, start=1):
+            page_text = page.extract_text() or ""
+    
+            if page_text.strip():
+                pages.append({
+                    "page": page_number,
+                    "text": page_text
+                })
+    
+        # Combine page text for the rest of the app
+        extracted_text = "\n\n".join(
+            page["text"] for page in pages
+        )
+    
+        st.success(f"Successfully processed {len(reader.pages)} pages!")
+    
+    except Exception as e:
+        st.error(f"Error reading PDF: {e}")
+        extracted_text = ""
+    
+    if extracted_text:
         # Organized Main View via Tabs
         tab_summary, tab_bionic, tab_audio, tab_chat = st.tabs([
             "⚡ ELI10 Summary", 
