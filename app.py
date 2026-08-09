@@ -3,6 +3,7 @@ from pypdf import PdfReader
 from openai import OpenAI
 from gtts import gTTS
 import io
+import numpy as np
 
 
 api_key = st.secrets.get("GEMINI_API_KEY")
@@ -164,9 +165,7 @@ def convert_to_bionic(text):
 # PDF SEARCH
 # ==========================================
 
-def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
-    import re
-
+def create_chunks(text, chunk_size=500):
     words = text.split()
     chunks = []
 
@@ -174,33 +173,55 @@ def find_relevant_chunks(text, query, chunk_size=1500, top_k=3):
         chunk = " ".join(words[i:i + chunk_size])
         chunks.append(chunk)
 
-    query_words = set(
-        word.lower()
-        for word in re.findall(r"\b[a-zA-Z0-9]+\b", query)
-        if len(word) > 2
+    return chunks
+
+
+def get_embedding(text):
+    response = client.embeddings.create(
+        model="gemini-embedding-2",
+        input=text
     )
+
+    return np.array(response.data[0].embedding)
+
+
+def find_relevant_chunks(text, query, top_k=3):
+    chunks = create_chunks(text)
+
+    if not chunks:
+        return ""
+
+    # Embed the user's question
+    query_embedding = get_embedding(query)
 
     scored_chunks = []
 
+    # Embed each document chunk
     for chunk in chunks:
-        chunk_words = set(
-            word.lower()
-            for word in re.findall(r"\b[a-zA-Z0-9]+\b", chunk)
+        chunk_embedding = get_embedding(chunk)
+
+        # Calculate cosine similarity
+        similarity = np.dot(
+            query_embedding,
+            chunk_embedding
+        ) / (
+            np.linalg.norm(query_embedding)
+            * np.linalg.norm(chunk_embedding)
         )
 
-        score = len(query_words.intersection(chunk_words))
+        scored_chunks.append((similarity, chunk))
 
-        scored_chunks.append((score, chunk))
-
+    # Highest similarity first
     scored_chunks.sort(
         reverse=True,
         key=lambda x: x[0]
     )
 
+    # Return the most relevant chunks
     return "\n\n".join(
-        chunk for score, chunk in scored_chunks[:top_k]
+        chunk
+        for score, chunk in scored_chunks[:top_k]
     )
-
 
 # ==========================================
 # 3. MAIN APPLICATION INTERFACE
